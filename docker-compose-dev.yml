@@ -1,0 +1,39 @@
+version: "2"
+networks:
+  backend:
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - 8080:80
+    depends_on:
+      - php
+    volumes:
+      - "./api:/site/api"
+      - "./docker/nginx:/etc/nginx"
+    networks:
+      backend:
+        aliases:
+          - nginx
+
+  php:
+#    image: php:7.1-fpm-alpine
+    build: "./docker/php"
+    volumes:
+      - "./api:/site/api"
+    networks:
+      backend:
+        aliases:
+          - php
+
+  postgres:
+      image: postgres
+      environment:
+        - POSTGRES_USER=${DB_USER}
+        - POSTGRES_PASSWORD=${DB_PASSWORD}
+        - POSTGRES_DB=${DB_DATABASE}
+      ports:
+        - "${DB_PORT}:5432"
+      volumes:
+        - "./docker/postgres/data:/var/lib/postgresql/data"
